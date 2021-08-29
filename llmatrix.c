@@ -275,3 +275,31 @@ void display(struct matrix *m)
         r++;
     }
 }
+
+/**
+ * Retrieves data in a matrix from a given position
+ * @param matrix(struct): The matrix to retrieve the value from.
+ * @param rowPosition(int): The row to retrieve the value from, starting from 0
+ * @param colPosition(int): The column to retrieve the value from, starting from 0
+ * @return value(double): The required value, 0 if position out of bounds.
+ */
+double getData(struct matrix *m, int rowPosition, int colPosition)
+{
+    double value = 0;
+    struct matrix *n;
+    struct matrix *h = m;
+    if ((rowPosition < rows(&m)) && (colPosition < columns(&m)))
+    {
+        n = h;
+        for(int i = 0; i < rowPosition; i++)
+        {
+            n = n->nextRow;
+        }
+        for(int j = 0; j < colPosition; j++)
+        {
+            n = n->nextColumn;
+        }
+        value = n->data;
+    }
+    return value;
+}

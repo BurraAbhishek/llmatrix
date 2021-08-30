@@ -16,6 +16,9 @@
  */
 
 /**
+ * Source code from:
+ * https://github.com/BurraAbhishek/llmatrix/
+ * 
  * Using single linked lists, 
  * we make immutable matrices. 
  */
@@ -291,15 +294,162 @@ double getData(struct matrix *m, int rowPosition, int colPosition)
     if ((rowPosition < rows(&m)) && (colPosition < columns(&m)))
     {
         n = h;
-        for(int i = 0; i < rowPosition; i++)
+        for (int i = 0; i < rowPosition; i++)
         {
             n = n->nextRow;
         }
-        for(int j = 0; j < colPosition; j++)
+        for (int j = 0; j < colPosition; j++)
         {
             n = n->nextColumn;
         }
         value = n->data;
     }
     return value;
+}
+
+// Format conversions
+
+/**
+ * Convert a two-dimensional array into struct matrix
+ * @param rows(int): The number of rows of the 2D array
+ * @param columns(int): The number of columns of the 2D array
+ * @return struct matrix *: The matrix form of the 2D array
+ */
+struct matrix *arrayToMatrix(int rows, int columns, double array[][columns])
+{
+    struct matrix *result = NULL;
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < columns; j++)
+        {
+            insert(&result, i, j, array[i][j]);
+        }
+    }
+    return result;
+}
+
+/**
+ * Convert a matrix into two-dimensional array
+ * @param struct matrix*: The matrix to convert
+ * @return array(double[][]): The 2D array form of the matrix
+ */
+double **MatrixToArray(struct matrix *m)
+{
+    struct matrix *n;
+    struct matrix *h = m;
+    int row = rows(&m);
+    int column = columns(&m);
+    double *a = calloc(row * column, sizeof(double));
+    double **array = malloc(column * sizeof(double *));
+    int r = 0;
+    int c;
+    while (h != NULL)
+    {
+        c = 0;
+        n = h;
+        while (n != NULL)
+        {
+            array[r][c] = n->data;
+            n = n->nextColumn;
+            c++;
+        }
+        h = h->nextRow;
+        r++;
+    }
+    return array;
+}
+
+// Matrix operations
+
+/**
+ * Determine if two matrices can be added
+ * @param matrix(struct) m1: The first matrix
+ * @param matrix(struct) m2: The second matrix
+ * @returns bool: True, if the two matrices can be added, false otherwise
+ */
+bool canAdd(struct matrix *m1, struct matrix *m2)
+{
+    return ((rows(&m1) == rows(&m2)) && (columns(&m1) == columns(&m2)));
+}
+
+/**
+ * Determine if two matrices can be multiplied
+ * @param matrix(struct) m1: The first matrix
+ * @param matrix(struct) m2: The second matrix
+ * @returns bool: True, if the two matrices can be multiplied, false otherwise
+ */
+bool canMultiply(struct matrix *m1, struct matrix *m2)
+{
+    return (columns(&m1) == rows(&m2));
+}
+
+/**
+ * Adds two matrices
+ * @param matrix(struct) m1: The first matrix
+ * @param matrix(struct) m2: The second matrix
+ * @returns matrix(struct) sum || null: The sum of the two matrices
+ */
+struct matrix *add(struct matrix *m1, struct matrix *m2)
+{
+    struct matrix *result = NULL;
+    if (canAdd(m1, m2))
+    {
+        double m1_value, m2_value, result_value;
+        struct matrix *n1;
+        struct matrix *h1 = m1;
+        struct matrix *n2;
+        struct matrix *h2 = m2;
+        int r = 0;
+        int c;
+        while (h1 != NULL)
+        {
+            c = 0;
+            n1 = h1;
+            n2 = h2;
+            while (n1 != NULL)
+            {
+                m1_value = n1->data;
+                m2_value = n2->data;
+                result_value = m1_value + m2_value;
+                insert(&result, r, c, result_value);
+                n1 = n1->nextColumn;
+                n2 = n2->nextColumn;
+                c++;
+            }
+            h1 = h1->nextRow;
+            h2 = h2->nextRow;
+            r++;
+        }
+    }
+    return result;
+}
+
+/**
+ * Multiplies two matrices. This function currently does NOT work as intended.
+ * @param matrix(struct) m1: The first matrix
+ * @param matrix(struct) m2: The second matrix
+ * @returns matrix(struct) product || null: The product of the two matrices
+ */
+struct matrix *multiply(struct matrix *m1, struct matrix *m2)
+{
+    struct matrix *result = NULL;
+    if (canMultiply(m1, m2))
+    {
+        double m1_value, m2_value, result_value;
+        for (int i = 0; i < rows(&m1); i++)
+        {
+            for (int j = 0; j < columns(&m2); j++)
+            {
+                result_value = 0;
+                for (int k = 0; k < rows(&m2); k++)
+                {
+                    m1_value = getData(m1, i, k);
+                    m2_value = getData(m2, k, j);
+                    result_value += m1_value * m2_value;
+                }
+                insert(&result, i, j, result_value);
+            }
+        }
+    }
+    return result;
 }

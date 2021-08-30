@@ -339,14 +339,14 @@ double **MatrixToArray(struct matrix *m)
     struct matrix *h = m;
     int row = rows(&m);
     int column = columns(&m);
-    double *a = calloc(row * column, sizeof(double));
-    double **array = malloc(column * sizeof(double *));
+    double **array = malloc(row * sizeof(double *));
     int r = 0;
     int c;
     while (h != NULL)
     {
         c = 0;
         n = h;
+        array[r] = malloc(column * sizeof(double *));
         while (n != NULL)
         {
             array[r][c] = n->data;
